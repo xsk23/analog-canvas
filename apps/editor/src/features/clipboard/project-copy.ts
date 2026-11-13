@@ -619,8 +619,13 @@ export function captureProjectCopy(
     ),
   );
   const fileIds = referencedSourceFiles([clipboard, [...documents.values()]]);
+  const externalSubcircuitDefinitions =
+    project.externalSubcircuitDefinitions.filter((d) => externalIds.has(d.id));
   const componentProject = withProjectComponentDefinitions({
     ...project,
+    // Preferred artwork is collected from native owners as well as instances.
+    // Scope both to the copy, or unrelated artwork loses its owner in transit.
+    externalSubcircuitDefinitions,
     documents: [
       {
         ...document,
@@ -640,9 +645,7 @@ export function captureProjectCopy(
       ...project.source,
       files: project.source.files.filter((f) => fileIds.has(f.id)),
     },
-    externalSubcircuitDefinitions: project.externalSubcircuitDefinitions.filter(
-      (d) => externalIds.has(d.id),
-    ),
+    externalSubcircuitDefinitions,
     modelSources:
       project.modelSources?.filter((source) =>
         project.externalSubcircuitDefinitions.some(
